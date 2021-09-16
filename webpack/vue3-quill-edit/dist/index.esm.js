@@ -82,6 +82,10 @@ var script = defineComponent({
                 return true;
             },
         },
+        handlers: {
+            type: Object,
+            require: false,
+        },
         modules: {
             type: Object,
             required: false,
@@ -95,7 +99,15 @@ var script = defineComponent({
             required: false,
         },
     },
-    emits: ["blur", "focus", "update:value", "change", "ready"],
+    emits: [
+        "blur",
+        "focus",
+        "update:value",
+        "change",
+        "ready",
+        "selectionChange",
+        "editorChange"
+    ],
     setup(props, { emit }) {
         onBeforeUnmount(() => {
             quill = null;
@@ -111,6 +123,7 @@ var script = defineComponent({
             if (!editor.value)
                 return;
             options = composeOptions();
+            console.log(options);
             // Register modules
             if (props.modules) {
                 if (Array.isArray(props.modules)) {
@@ -123,6 +136,24 @@ var script = defineComponent({
                 }
             }
             quill = new Quill$1(editor.value, options);
+            const toolbar = quill.getModule("toolbar");
+            // toolbar.addHandler("image", ()=>{
+            //   console.log(11212);
+            // });
+            if (props.handlers) {
+                if (typeof props.handlers === "object") {
+                    for (const key in props.handlers) {
+                        if (Object.prototype.hasOwnProperty.call(props.handlers, key)) {
+                            console.log(key);
+                            console.log(props.handlers[key]);
+                            toolbar.addHandler(key, () => {
+                                console.log(11212);
+                                props.handlers[key];
+                            });
+                        }
+                    }
+                }
+            }
             // Remove editor class when theme changes
             if (props.theme !== "bubble")
                 editor.value.classList.remove("ql-bubble");
@@ -130,7 +161,6 @@ var script = defineComponent({
                 editor.value.classList.remove("ql-snow");
             console.log(props.value);
             if (props.value || props.content) {
-                console.log(12121);
                 quill.clipboard.dangerouslyPasteHTML(props.value || props.content);
             }
             // Disabled editor
@@ -143,26 +173,46 @@ var script = defineComponent({
                 if (editor.value && editor.value.children) {
                     html = editor.value.children[0].innerHTML;
                 }
-                const text = quill ? quill.getText() : '';
+                const text = quill ? quill.getText() : "";
                 if (html === "<p><br></p>")
                     html = "";
                 _content = html;
                 emit("update:value", _content);
                 emit("change", { html, text, quill });
             });
-            quill.on("selection-change", (range) => {
+            quill.on("selection-change", (range, oldRange, source) => {
                 if (!range) {
                     emit("blur", quill);
                 }
                 else {
                     emit("focus", quill);
                 }
+                emit("selectionChange", { range, oldRange, source });
             });
-            quill
-                .getModule("toolbar") ? quill
-                .getModule("toolbar").container.addEventListener("mousedown", (e) => {
-                e.preventDefault();
-            }) : '';
+            // 编辑内容发生变化时
+            quill.on("editor-change", (...args) => {
+                if (args[0] === "text-change")
+                    emit("editorChange", {
+                        name: args[0],
+                        delta: args[1],
+                        oldContents: args[2],
+                        source: args[3],
+                    });
+                if (args[0] === "selection-change")
+                    emit("editorChange", {
+                        name: args[0],
+                        range: args[1],
+                        oldRange: args[2],
+                        source: args[3],
+                    });
+            });
+            quill.getModule("toolbar")
+                ? quill
+                    .getModule("toolbar")
+                    .container.addEventListener("mousedown", (e) => {
+                    e.preventDefault();
+                })
+                : "";
             // Emit ready event
             emit("ready", quill);
         }
@@ -199,7 +249,9 @@ var script = defineComponent({
                         }
                     }
                     else {
-                        modulesOption[props.modules.name] = props.modules.options ? props.modules.options : {};
+                        modulesOption[props.modules.name] = props.modules.options
+                            ? props.modules.options
+                            : {};
                     }
                     return modulesOption;
                 })();
@@ -223,8 +275,20 @@ var script = defineComponent({
             if (quill)
                 quill.enable(newValue);
         });
+        // 设置quill内容
+        function setContent(index = null, html, source = 'api') {
+            if (!quill)
+                return;
+            if (index) {
+                quill.clipboard.dangerouslyPasteHTML(index, html, source);
+            }
+            else {
+                quill.clipboard.dangerouslyPasteHTML(html, source);
+            }
+        }
         return {
             editor,
+            setContent
         };
     },
 });

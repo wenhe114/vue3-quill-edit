@@ -14,11 +14,11 @@ import {
   PropType,
   watch,
 } from "vue";
-import { QuillOptionsStatic } from "quill";
+import { QuillOptionsStatic, RangeStatic, Sources, Delta } from "quill";
 import Quill from "quill";
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
 import { toolbarOptions, ToolbarOptions } from "../until/options";
 export type Module = { name: string; module: any; options?: object };
 
@@ -69,6 +69,10 @@ export default defineComponent({
         return true;
       },
     },
+    handlers:{
+      type:Object,
+      require:false,
+    },
     modules: {
       type: Object as PropType<Module | Module[]>,
       required: false,
@@ -82,7 +86,15 @@ export default defineComponent({
       required: false,
     },
   },
-  emits: ["blur", "focus", "update:value", "change", "ready"],
+  emits: [
+    "blur",
+    "focus",
+    "update:value",
+    "change",
+    "ready",
+    "selectionChange",
+    "editorChange"
+  ],
   setup(props, { emit }) {
     onBeforeUnmount(() => {
       quill = null;
@@ -97,6 +109,8 @@ export default defineComponent({
     function init() {
       if (!editor.value) return;
       options = composeOptions();
+      console.log(options);
+      
       // Register modules
       if (props.modules) {
         if (Array.isArray(props.modules)) {
@@ -109,12 +123,31 @@ export default defineComponent({
       }
 
       quill = new Quill(editor.value, options);
+      const toolbar = quill.getModule("toolbar");
+       // toolbar.addHandler("image", ()=>{
+      //   console.log(11212);
+
+      // });
+      if (props.handlers) {
+        if (typeof props.handlers === "object") {
+          for (const key in props.handlers) {
+            if (Object.prototype.hasOwnProperty.call(props.handlers, key)) {
+              console.log(key);
+              console.log((props.handlers as any)[key]);
+              
+              toolbar.addHandler(key, () => {
+                console.log(11212);
+                (props.handlers as any)[key];
+              });
+            }
+          }
+        }
+      }
       // Remove editor class when theme changes
       if (props.theme !== "bubble") editor.value.classList.remove("ql-bubble");
       if (props.theme !== "snow") editor.value.classList.remove("ql-snow");
       console.log(props.value);
       if (props.value || props.content) {
-        console.log(12121);
         quill.clipboard.dangerouslyPasteHTML(
           (props.value as any) || (props.content as any)
         );
@@ -126,30 +159,71 @@ export default defineComponent({
       }
       // Set event handlers
       quill.on("text-change", (delta, oldDelta, source) => {
-        let html: any=""
-        if (editor.value&&editor.value.children) {
-           html = editor.value.children[0].innerHTML;
+        let html: any = "";
+        if (editor.value && editor.value.children) {
+          html = editor.value.children[0].innerHTML;
         }
-        
-        const text = quill?quill.getText():'';
+
+        const text = quill ? quill.getText() : "";
         if (html === "<p><br></p>") html = "";
         _content = html;
         emit("update:value", _content);
         emit("change", { html, text, quill });
       });
-      quill.on("selection-change", (range: any) => {
-        if (!range) {
-          emit("blur", quill);
-        } else {
-          emit("focus", quill);
-        }
-      });
 
-      quill
-        .getModule("toolbar")?quill
-        .getModule("toolbar").container.addEventListener("mousedown", (e: MouseEvent) => {
-          e.preventDefault();
-        }):'';
+      quill.on(
+        "selection-change",
+        (range: RangeStatic, oldRange: RangeStatic, source: Sources) => {
+          if (!range) {
+            emit("blur", quill);
+          } else {
+            emit("focus", quill);
+          }
+          emit("selectionChange", { range, oldRange, source });
+        }
+      );
+
+      // 编辑内容发生变化时
+      quill.on(
+        "editor-change",
+        (
+          ...args:
+            | [
+                name: "text-change",
+                delta: Delta,
+                oldContents: Delta,
+                source: Sources
+              ]
+            | [
+                name: "selection-change",
+                range: RangeStatic,
+                oldRange: RangeStatic,
+                source: Sources
+              ]
+        ) => {
+          if (args[0] === "text-change")
+            emit("editorChange", {
+              name: args[0],
+              delta: args[1],
+              oldContents: args[2],
+              source: args[3],
+            });
+          if (args[0] === "selection-change")
+            emit("editorChange", {
+              name: args[0],
+              range: args[1],
+              oldRange: args[2],
+              source: args[3],
+            });
+        }
+      );
+      quill.getModule("toolbar")
+        ? quill
+            .getModule("toolbar")
+            .container.addEventListener("mousedown", (e: MouseEvent) => {
+              e.preventDefault();
+            })
+        : "";
 
       // Emit ready event
       emit("ready", quill);
@@ -174,15 +248,18 @@ export default defineComponent({
           })(),
         };
       }
+     
       if (props.modules) {
         const modules = (() => {
           const modulesOption: { [key: string]: any } = {};
           if (Array.isArray(props.modules)) {
             for (const module of props.modules) {
-              modulesOption[module.name] = module.options ?module.options : {};
+              modulesOption[module.name] = module.options ? module.options : {};
             }
           } else {
-            modulesOption[props.modules.name] = props.modules.options ?props.modules.options: {};
+            modulesOption[props.modules.name] = props.modules.options
+              ? props.modules.options
+              : {};
           }
           return modulesOption;
         })();
@@ -216,8 +293,19 @@ export default defineComponent({
         if (quill) quill.enable(newValue);
       }
     );
+
+    // 设置quill内容
+    function setContent(index: number|null=null, html: string, source: Sources = 'api'){
+      if (!quill) return;
+      if (index) {
+        quill.clipboard.dangerouslyPasteHTML(index,html,source);
+      }else{
+        quill.clipboard.dangerouslyPasteHTML(html,source);
+      }
+    }
     return {
       editor,
+      setContent
     };
   },
 });

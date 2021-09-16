@@ -1,8 +1,8 @@
 import { PropType } from "vue";
-import { QuillOptionsStatic } from "quill";
-import 'quill/dist/quill.core.css';
-import 'quill/dist/quill.snow.css';
-import 'quill/dist/quill.bubble.css';
+import { QuillOptionsStatic, Sources } from "quill";
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
 export declare type Module = {
     name: string;
     module: any;
@@ -42,6 +42,10 @@ declare const _default: import("vue").DefineComponent<{
         required: false;
         validator: (value: string | unknown) => boolean;
     };
+    handlers: {
+        type: ObjectConstructor;
+        require: boolean;
+    };
     modules: {
         type: PropType<Module | Module[]>;
         required: false;
@@ -56,7 +60,8 @@ declare const _default: import("vue").DefineComponent<{
     };
 }, {
     editor: import("vue").Ref<Element | undefined>;
-}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, ("blur" | "focus" | "update:value" | "change" | "ready")[], "blur" | "focus" | "update:value" | "change" | "ready", import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<{
+    setContent: (index: number | null | undefined, html: string, source?: Sources) => void;
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, ("blur" | "focus" | "update:value" | "change" | "ready" | "selectionChange" | "editorChange")[], "blur" | "focus" | "update:value" | "change" | "ready" | "selectionChange" | "editorChange", import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<{
     content?: unknown;
     value?: unknown;
     contentType?: unknown;
@@ -65,6 +70,7 @@ declare const _default: import("vue").DefineComponent<{
     placeholder?: unknown;
     theme?: unknown;
     toolbar?: unknown;
+    handlers?: unknown;
     modules?: unknown;
     options?: unknown;
     globalOptions?: unknown;
@@ -78,6 +84,7 @@ declare const _default: import("vue").DefineComponent<{
     value?: string | undefined;
     placeholder?: string | undefined;
     toolbar?: unknown;
+    handlers?: Record<string, any> | undefined;
     modules?: Module | Module[] | undefined;
     options?: QuillOptionsStatic | undefined;
     globalOptions?: QuillOptionsStatic | undefined;
@@ -87,6 +94,8 @@ declare const _default: import("vue").DefineComponent<{
     "onUpdate:value"?: ((...args: any[]) => any) | undefined;
     onChange?: ((...args: any[]) => any) | undefined;
     onReady?: ((...args: any[]) => any) | undefined;
+    onSelectionChange?: ((...args: any[]) => any) | undefined;
+    onEditorChange?: ((...args: any[]) => any) | undefined;
 }, {
     contentType: "delta" | "html" | "text";
     enable: boolean;
