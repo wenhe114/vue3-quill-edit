@@ -17,3 +17,12 @@ const VueQuillEditor = { Quill, vue3Quill, install }
 
 export default VueQuillEditor
 export { Quill, vue3Quill, install }
+
+// import type { App } from "vue";
+// import vue3Quill from "../dist/index";
+// declare const install: (app: App, opt: any) => void;
+// export { vue3Quill, install };
+// declare const _default: {
+//     install: (app: App<any>, opt: any) => void;
+// };
+// export default _default;

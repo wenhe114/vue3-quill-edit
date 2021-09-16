@@ -11,7 +11,7 @@
 import { defineComponent, ref, watch } from "vue";
 // import {vue3Quill} from "@webpack/vue3-quill-edit/dist/index.js";
 import {vue3Quill} from "@webpack/vue3-quill-edit/index";
-// import {vue3Quill} from "vue3-quill-edit/index";
+// import {vue3Quill} from "vue3-quill-edit";
 export default defineComponent({
   components: {
     vue3Quill,

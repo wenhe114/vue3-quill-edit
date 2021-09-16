@@ -126,8 +126,12 @@ export default defineComponent({
       }
       // Set event handlers
       quill.on("text-change", (delta, oldDelta, source) => {
-        let html: any = editor.value?.children[0].innerHTML;
-        const text = quill?.getText();
+        let html: any=""
+        if (editor.value&&editor.value.children) {
+           html = editor.value.children[0].innerHTML;
+        }
+        
+        const text = quill?quill.getText():'';
         if (html === "<p><br></p>") html = "";
         _content = html;
         emit("update:value", _content);
@@ -142,10 +146,10 @@ export default defineComponent({
       });
 
       quill
-        .getModule("toolbar")
-        ?.container.addEventListener("mousedown", (e: MouseEvent) => {
+        .getModule("toolbar")?quill
+        .getModule("toolbar").container.addEventListener("mousedown", (e: MouseEvent) => {
           e.preventDefault();
-        });
+        }):'';
 
       // Emit ready event
       emit("ready", quill);
@@ -175,10 +179,10 @@ export default defineComponent({
           const modulesOption: { [key: string]: any } = {};
           if (Array.isArray(props.modules)) {
             for (const module of props.modules) {
-              modulesOption[module.name] = module.options ?? {};
+              modulesOption[module.name] = module.options ?module.options : {};
             }
           } else {
-            modulesOption[props.modules.name] = props.modules.options ?? {};
+            modulesOption[props.modules.name] = props.modules.options ?props.modules.options: {};
           }
           return modulesOption;
         })();

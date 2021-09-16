@@ -6,6 +6,8 @@
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
+    "declaration": true,
+    // "declarationDir": "./webpack/vue3-quill-edit/types",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -25,7 +27,8 @@
       ],
       "@webpack/*": [
         "webpack/*"
-      ]
+      ],
+      "@vue3-quill-edit/*":["webpack/vue3-quill-edit/*"]
     },
     "lib": [
       "esnext",

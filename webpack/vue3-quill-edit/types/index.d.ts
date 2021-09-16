@@ -1,9 +1,10 @@
-import Vue from 'vue';
-
-export declare function install(vue: typeof Vue): void;
-
-export declare const _default: {
-  install: typeof install;
+import vue3Quill from '../dist/index';
+declare const Quill: any;
+declare const install: (Vue: any) => void;
+declare const VueQuillEditor: {
+    Quill: any;
+    vue3Quill: import("vue").DefineComponent<{}, {}, any, Record<string, import("@vue/reactivity").ComputedGetter<any> | import("vue").WritableComputedOptions<any>>, import("vue").MethodOptions, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<{} & {} & {}> & {}, {}>;
+    install: (Vue: any) => void;
 };
-export default _default
-export * from "../index"
+export default VueQuillEditor;
+export { Quill, vue3Quill, install };
