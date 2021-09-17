@@ -102,6 +102,11 @@
               type: Object,
               required: false,
           },
+          height: {
+              type: String,
+              required: false,
+              default: 'auto'
+          }
       },
       emits: [
           "blur",
@@ -120,6 +125,7 @@
           let options;
           let _content = "";
           const editor = vue.ref();
+          let height = props.height;
           vue.onMounted(() => {
               init();
           });
@@ -148,12 +154,7 @@
                   if (typeof props.handlers === "object") {
                       for (const key in props.handlers) {
                           if (Object.prototype.hasOwnProperty.call(props.handlers, key)) {
-                              console.log(key);
-                              console.log(props.handlers[key]);
-                              toolbar.addHandler(key, () => {
-                                  console.log(11212);
-                                  props.handlers[key];
-                              });
+                              toolbar.addHandler(key, props.handlers[key]);
                           }
                       }
                   }
@@ -292,18 +293,21 @@
           }
           return {
               editor,
-              setContent
+              setContent,
+              height
           };
       },
   });
 
   const _hoisted_1 = { class: "quill-editor" };
-  const _hoisted_2 = { ref: "editor" };
 
   function render(_ctx, _cache, $props, $setup, $data, $options) {
     return (vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [
       vue.renderSlot(_ctx.$slots, "toolbar"),
-      vue.createElementVNode("div", _hoisted_2, null, 512 /* NEED_PATCH */)
+      vue.createElementVNode("div", {
+        ref: "editor",
+        style: vue.normalizeStyle([{"overflow":"auto","min-height":"100px"}, {height:_ctx.height}])
+      }, null, 4 /* STYLE */)
     ]))
   }
 

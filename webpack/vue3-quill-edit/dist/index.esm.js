@@ -1,5 +1,5 @@
 import Quill$1 from 'quill';
-import { defineComponent, onBeforeUnmount, ref, onMounted, watch, openBlock, createElementBlock, renderSlot, createElementVNode } from 'vue';
+import { defineComponent, onBeforeUnmount, ref, onMounted, watch, openBlock, createElementBlock, renderSlot, createElementVNode, normalizeStyle } from 'vue';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.bubble.css';
@@ -98,6 +98,11 @@ var script = defineComponent({
             type: Object,
             required: false,
         },
+        height: {
+            type: String,
+            required: false,
+            default: 'auto'
+        }
     },
     emits: [
         "blur",
@@ -116,6 +121,7 @@ var script = defineComponent({
         let options;
         let _content = "";
         const editor = ref();
+        let height = props.height;
         onMounted(() => {
             init();
         });
@@ -144,12 +150,7 @@ var script = defineComponent({
                 if (typeof props.handlers === "object") {
                     for (const key in props.handlers) {
                         if (Object.prototype.hasOwnProperty.call(props.handlers, key)) {
-                            console.log(key);
-                            console.log(props.handlers[key]);
-                            toolbar.addHandler(key, () => {
-                                console.log(11212);
-                                props.handlers[key];
-                            });
+                            toolbar.addHandler(key, props.handlers[key]);
                         }
                     }
                 }
@@ -288,18 +289,21 @@ var script = defineComponent({
         }
         return {
             editor,
-            setContent
+            setContent,
+            height
         };
     },
 });
 
 const _hoisted_1 = { class: "quill-editor" };
-const _hoisted_2 = { ref: "editor" };
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (openBlock(), createElementBlock("div", _hoisted_1, [
     renderSlot(_ctx.$slots, "toolbar"),
-    createElementVNode("div", _hoisted_2, null, 512 /* NEED_PATCH */)
+    createElementVNode("div", {
+      ref: "editor",
+      style: normalizeStyle([{"overflow":"auto","min-height":"100px"}, {height:_ctx.height}])
+    }, null, 4 /* STYLE */)
   ]))
 }
 

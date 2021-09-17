@@ -1,7 +1,7 @@
 <template>
   <div class="quill-editor">
     <slot name="toolbar"></slot>
-    <div ref="editor"></div>
+    <div ref="editor" style="overflow: auto;min-height: 100px;" :style="{height:height}"></div>
   </div>
 </template>
 
@@ -85,6 +85,11 @@ export default defineComponent({
       type: Object as PropType<QuillOptionsStatic>,
       required: false,
     },
+    height:{
+      type:String,
+      required:false,
+      default:'auto'
+    }
   },
   emits: [
     "blur",
@@ -103,6 +108,7 @@ export default defineComponent({
     let options: QuillOptionsStatic;
     let _content: string = "";
     const editor = ref<Element>();
+    let height=props.height
     onMounted(() => {
       init();
     });
@@ -299,7 +305,8 @@ export default defineComponent({
     }
     return {
       editor,
-      setContent
+      setContent,
+      height
     };
   },
 });

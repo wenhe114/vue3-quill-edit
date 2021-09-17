@@ -58,9 +58,15 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<QuillOptionsStatic>;
         required: false;
     };
+    height: {
+        type: StringConstructor;
+        required: false;
+        default: string;
+    };
 }, {
     editor: import("vue").Ref<Element | undefined>;
     setContent: (index: number | null | undefined, html: string, source?: Sources) => void;
+    height: string;
 }, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, ("blur" | "focus" | "update:value" | "change" | "ready" | "selectionChange" | "editorChange")[], "blur" | "focus" | "update:value" | "change" | "ready" | "selectionChange" | "editorChange", import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<{
     content?: unknown;
     value?: unknown;
@@ -74,11 +80,13 @@ declare const _default: import("vue").DefineComponent<{
     modules?: unknown;
     options?: unknown;
     globalOptions?: unknown;
+    height?: unknown;
 } & {
     contentType: "delta" | "html" | "text";
     enable: boolean;
     readOnly: boolean;
     theme: "" | "snow" | "bubble";
+    height: string;
 } & {
     content?: string | undefined;
     value?: string | undefined;
@@ -101,5 +109,6 @@ declare const _default: import("vue").DefineComponent<{
     enable: boolean;
     readOnly: boolean;
     theme: "" | "snow" | "bubble";
+    height: string;
 }>;
 export default _default;
