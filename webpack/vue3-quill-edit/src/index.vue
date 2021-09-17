@@ -132,13 +132,7 @@ export default defineComponent({
         if (typeof props.handlers === "object") {
           for (const key in props.handlers) {
             if (Object.prototype.hasOwnProperty.call(props.handlers, key)) {
-              console.log(key);
-              console.log((props.handlers as any)[key]);
-              
-              toolbar.addHandler(key, () => {
-                console.log(11212);
-                (props.handlers as any)[key];
-              });
+              toolbar.addHandler(key, (props.handlers as any)[key]);
             }
           }
         }
